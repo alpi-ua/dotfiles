@@ -1,0 +1,7 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =5
+let g:netrw_dirhist_5='/sys/class/backlight/intel_backlight/subsystem/intel_backlight'
+let g:netrw_dirhist_4='/sys/class/backlight/intel_backlight/subsystem'
+let g:netrw_dirhist_3='/sys/class/backlight/intel_backlight'
+let g:netrw_dirhist_2='/sys/class/backlight/intel_backlight/device'
+let g:netrw_dirhist_1='/sys/class/backlight/intel_backlight'

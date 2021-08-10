@@ -1,0 +1,432 @@
+# See https://i3wm.org/docs/userguide.html for a complete reference
+
+################################################################################ 
+##############################     VARIABLES    ################################
+################################################################################ 
+set $mod Mod4
+
+set $secondary_display DP1
+#set $secondary_display VGA1
+
+workspace_auto_back_and_forth yes
+font pango:DejaVu Sans Mono 11
+title_align center
+
+################################################################################
+#############################     I3_BINDIGS     ###############################
+################################################################################ 
+
+bindsym $mod+Shift+c reload        # reload the configuration file
+bindsym $mod+Shift+r restart       # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
+bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Want to exit i3 and stop your X session?' -B 'Yes' 'i3-msg exit'"  # exit i3
+
+# change focus
+bindsym $mod+j focus left               
+bindsym $mod+k focus down              
+bindsym $mod+l focus up               
+bindsym $mod+semicolon focus right   
+
+# move focused window
+bindsym $mod+Shift+j move left      
+bindsym $mod+Shift+k move down     
+bindsym $mod+Shift+l move up      
+bindsym $mod+Shift+semicolon move right
+
+# Mark window (not workspace) and goto mark
+bindsym $mod+i exec i3-input -F 'mark %s' -l 1 -P 'Mark: '
+bindsym $mod+o exec i3-input -F '[con_mark="%s"] focus' -l 1 -P 'Goto: '
+
+# split & fullscreen & stacking
+bindsym $mod+h split h
+bindsym $mod+v split v
+bindsym $mod+e layout toggle split
+bindsym $mod+s layout stacking
+bindsym $mod+w layout tabbed 
+bindsym $mod+a focus parent
+bindsym $mod+q focus child
+bindsym $mod+f fullscreen toggle
+
+# floating
+bindsym $mod+t floating toggle           
+bindsym $mod+space focus mode_toggle    
+floating_modifier $mod
+
+# scratchpad
+bindsym $mod+Shift+minus move scratchpad
+bindsym $mod+minus scratchpad show
+
+# Rename workspace I3tags; show and move to workspace
+bindsym $mod+n exec i3-input -F 'rename workspace to "%s"' -P 'New name: '
+bindsym $mod+r exec "xkbgroup set num 0;$HOME/.i3/tags/i3-dtags.sh -fn '$dfont'"
+bindsym $mod+m exec "xkbgroup set num 0;$HOME/.i3/tags/i3-dtags-moveto.sh -fn '$dfont'"
+
+# Workspace travel
+bindsym $mod+b workspace back_and_forth
+bindcode $mod+34 workspace prev_on_output
+bindcode $mod+35 workspace next_on_output
+bindcode $mod+Shift+34 workspace prev
+bindcode $mod+Shift+35 workspace next
+
+# Move container
+bindsym $mod+Shift+b move container to workspace back_and_forth
+#bindcode $mod+59 move container to workspace prev
+#bindcode $mod+60 move container to workspace next
+#bindcode $mod+61 move container to workspace current
+
+# Move workspace
+bindsym $mod+z move workspace to output primary
+bindsym $mod+x move workspace to output $secondary_display
+
+# Kill bindings: notification, deadly cursor, kill focused window
+bindsym $mod+Shift+d --release exec "killall dunst; exec notify-send 'restart dunst'"
+bindsym $mod+Ctrl+x --release exec --no-startup-id xkill
+bindsym $mod+Shift+q kill               
+
+
+################################################################################
+#############################       STARTUP       ##############################
+################################################################################ 
+
+# Locale switching and mouse speed setting
+exec_always "setxkbmap -model pc104 -layout us,ru,ua -variant ,, -option grp:switch,grp:win_space_toggle"
+exec_always --no-startup-id xinput set-prop 'Lenovo TrackPoint Keyboard II Mouse' 'libinput Accel Speed' -0.25
+
+# Autostart applications
+exec --no-startup-id xidlehook --not-when-fullscreen --not-when-audio --timer 300 'blurlock; xkbgroup set num 0' ''
+exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+exec_always --no-startup-id ff-theme-util
+exec_always --no-startup-id fix_xcursor 
+
+# Background images
+exec_always --no-startup-id sleep 1 && nitrogen --force-setter=xinerama --head=0 --random --set-zoom-fill /home/alpi/Pictures/wallpapers/
+exec_always --no-startup-id sleep 2 && nitrogen --force-setter=xinerama --head=1 --random --set-zoom-fill /home/alpi/Pictures/wallpapers/
+#exec --no-startup-id sleep 3 && feh --no-fehbg --bg-fill $HOME/Pictures/lotos.jpg
+
+# Conky and tray
+exec --no-startup-id start_conky_maia
+exec --no-startup-id nm-applet
+exec --no-startup-id pamac-tray
+exec --no-startup-id flameshot
+exec --no-startup-id redshift-gtk
+#exec --no-startup-id clipit
+exec --no-startup-id pa-applet
+exec --no-startup-id volumeicon
+exec --no-startup-id blueman-applet
+
+################################################################################
+#############################      BINDINGS       ##############################
+################################################################################ 
+
+# Change locale by pressing a key
+# Right_Shift > English
+bindcode 62 exec --no-startup-id "xkbgroup set num 0"     
+# Right_Alt > Russian
+bindcode 108 exec --no-startup-id "xkbgroup set num 1"   
+# Right_Ctrl > Ukrainian
+bindcode 105 exec --no-startup-id "xkbgroup set num 2"    
+
+# Start Applications
+bindsym $mod+Return exec i3-sensible-terminal
+bindsym $mod+F2 exec palemoon
+bindsym $mod+F3 exec pcmanfm
+bindsym $mod+F5 exec terminal -e 'mocp'
+
+# Diff
+bindsym $mod+Ctrl+c exec zenity --calendar
+bindsym $mod+Ctrl+z exec zenity --file-selection
+bindsym $mod+Mod1+c exec io.elementary.calculator
+bindsym $mod+F11 exec --no-startup-id "blurlock; xkbgroup set num 0"
+bindsym $mod+Ctrl+m exec pavucontrol
+#bindsym $mod+Ctrl+m exec terminal -e 'alsamixer'
+
+# Use pactl to adjust volume in PulseAudio.
+set $refresh_i3status killall -SIGUSR1 i3status
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10% && $refresh_i3status
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10% && $refresh_i3status
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && $refresh_i3status
+bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
+
+##Keyboard backlight control
+#set $brightness_step 1
+#bindsym XF86KbdBrightnessUp   exec ~/bin/brightness -n -i $brightness_step
+#bindsym XF86KbdBrightnessDown exec ~/bin/brightness -n -d $brightness_step
+
+# Screen brightness controls
+#bindsym XF86MonBrightnessUp 	exec 	"xbacklight -ctrl intel_backlight -inc 10"
+#bindsym XF86MonBrightnessDown 	exec 	"xbacklight -ctrl intel_backlight -dec 10"
+#bindsym $mod+F8 		exec 	"xbacklight -ctrl ddcci6 -dec 10"
+#bindsym $mod+F9 		exec 	"xbacklight -ctrl ddcci6 -inc 10"
+
+
+################################################################################
+##############################    WORKSPACES    ################################
+################################################################################ 
+
+# Defaults
+workspace 1 output primary
+workspace 4:tele output primary
+workspace 10:ff output $secondary_display
+workspace 6:dhamma output $secondary_display
+workspace 9:temabit output $secondary_display
+workspace 5:note output $secondary_display
+workspace 11 output $secondary_display
+workspace 12 output $secondary_display
+workspace 13 output $secondary_display
+workspace 14 output $secondary_display
+workspace 15 output $secondary_display
+workspace 16 output $secondary_display
+workspace 17 output $secondary_display
+workspace 18 output $secondary_display
+workspace 19 output $secondary_display
+workspace 20 output $secondary_display
+
+# Define names for default workspaces
+set $ws1 "1"
+set $ws2 "2:ht"
+set $ws3 "3"
+set $ws4 "4:tel"
+set $ws5 "5:note"
+set $ws6 "6"
+set $ws7 "7:teams"
+set $ws8 "8:remmina"
+set $ws9 "9:temabit"
+set $ws10 "10:ff"
+set $ws11 "11"
+set $ws12 "12"
+set $ws13 "13"
+set $ws14 "14"
+set $ws15 "15"
+set $ws16 "16"
+set $ws17 "17"
+set $ws18 "18"
+set $ws19 "19"
+set $ws20 "20"
+
+# switch to workspace
+bindsym $mod+1 workspace number $ws1
+bindsym $mod+2 workspace number $ws2
+bindsym $mod+3 workspace number $ws3
+bindsym $mod+4 workspace number $ws4
+bindsym $mod+5 workspace number $ws5
+bindsym $mod+6 workspace number $ws6
+bindsym $mod+7 workspace number $ws7
+bindsym $mod+8 workspace number $ws8
+bindsym $mod+9 workspace number $ws9
+bindsym $mod+0 workspace number $ws10
+bindcode 99+1 workspace number $ws11
+bindsym Print+1 workspace number $ws12
+#bindsym workspace number $ws13
+#bindsym workspace number $ws14
+#bindsym workspace number $ws15
+#bindsym workspace number $ws16
+#bindsym workspace number $ws17
+#bindsym workspace number $ws18
+#bindsym workspace number $ws19
+#bindsym workspace number $ws20
+
+# move focused container to workspace
+bindsym $mod+Shift+1 move container to workspace number $ws1
+bindsym $mod+Shift+2 move container to workspace number $ws2
+bindsym $mod+Shift+3 move container to workspace number $ws3
+bindsym $mod+Shift+4 move container to workspace number $ws4
+bindsym $mod+Shift+5 move container to workspace number $ws5
+bindsym $mod+Shift+6 move container to workspace number $ws6
+bindsym $mod+Shift+7 move container to workspace number $ws7
+bindsym $mod+Shift+8 move container to workspace number $ws8
+bindsym $mod+Shift+9 move container to workspace number $ws9
+bindsym $mod+Shift+0 move container to workspace number $ws10
+bindsym $mod+Ctrl+Shift+1 move container to workspace number $ws11
+bindsym $mod+Ctrl+Shift+2 move container to workspace number $ws12
+bindsym $mod+Ctrl+Shift+3 move container to workspace number $ws13
+bindsym $mod+Ctrl+Shift+4 move container to workspace number $ws14
+bindsym $mod+Ctrl+Shift+5 move container to workspace number $ws15
+bindsym $mod+Ctrl+Shift+6 move container to workspace number $ws16
+bindsym $mod+Ctrl+Shift+7 move container to workspace number $ws17
+bindsym $mod+Ctrl+Shift+8 move container to workspace number $ws18
+bindsym $mod+Ctrl+Shift+9 move container to workspace number $ws19
+bindsym $mod+Ctrl+Shift+0 move container to workspace number $ws20
+
+# Open specific applications in floating mode 
+for_window [title="alsamixer"] floating enable border pixel 1
+for_window [class="calamares"] floating enable border normal
+for_window [class="Clipgrab"] floating enable
+for_window [title="File Transfer*"] floating enable
+for_window [class="fpakman"] floating enable
+for_window [class="GParted"] floating enable border normal
+for_window [class="Lightdm-settings"] floating enable
+for_window [class="Lxappearance"] floating enable sticky enable border normal
+for_window [class="Manjaro-hello"] floating enable
+for_window [class="Manjaro Settings Manager"] floating enable border normal
+for_window [title="MuseScore: Play Panel"] floating enable
+for_window [class="Nitrogen"] floating enable sticky enable border normal
+for_window [class="Oblogout"] fullscreen enable
+for_window [class="octopi"] floating enable
+for_window [title="About Pale Moon"] floating enable
+for_window [class="Pamac-manager"] floating enable
+for_window [class="Pavucontrol"] floating enable
+for_window [class="qt5ct"] floating enable sticky enable border normal
+for_window [class="Qtconfig-qt4"] floating enable sticky enable border normal
+for_window [class="Simple-scan"] floating enable border normal
+for_window [class="(?i)System-config-printer.py"] floating enable border normal
+for_window [class="Skype"] floating enable border normal
+for_window [class="Timeset-gui"] floating enable border normal
+for_window [class="(?i)virtualbox"] floating enable border normal
+for_window [class="Xfburn"] floating enable
+
+
+################################################################################
+##############################       MENU       ################################
+################################################################################ 
+
+# categorized menu
+bindsym $mod+u exec --no-startup-id morc_menu 
+bindsym $mod+Ctrl+b exec terminal -e 'bmenu'
+
+# Rofi
+bindsym $mod+Ctrl+s exec "xkbgroup set num 0;rofi -show ssh"
+bindsym $mod+Tab    exec "xkbgroup set num 0;rofi -show window"
+bindsym $mod+d      exec "xkbgroup set num 0;rofi -show run"
+#bindsym $mod+d exec --no-startup-id i3-dmenu-desktop
+#bindsym $mod+d exec --no-startup-id dmenu_recency
+
+# Pass
+bindsym $mod+Ctrl+t exec passmenu
+bindsym $mod+Ctrl+p exec PASSWORD_STORE_DIR=~/.my-password-store passmenu
+
+# take a screenshot with scrot, put it in Desktop folder
+set $scrot_capture scrot 'screenshot-%Y-%m-%d_%H-%M-%S.png' -e 'mv $f ~/Pictures/'
+set $scrot_region scrot -s 'screenshot-%Y-%m-%d_%H-%M-%S.png' -e 'mv $f ~/Pictures/'
+set $scrot_region_cb scrot -s 'screenshot-%Y-%m-%d_%H-%M-%S.png' -e 'xclip -selection clipboard -t image/png -i $f'
+set $scrot_focus scrot -u 'screenshot-%Y-%m-%d_%H-%M-%S.png' -e 'mv $f ~/Pictures/'
+set $scrot_focus_cb scrot -u 'screenshot-%Y-%m-%d_%H-%M-%S.png' -e 'xclip -selection clipboard -t image/png -i $f'
+set $mode_screenshot Screenshot: (Enter) Save all, (S) Select to clip, (F) Focused to clip, (Ctrl+S) Save select, (Ctrl+F) Save focused
+mode "$mode_screenshot" {
+        bindsym Return      exec --no-startup-id $scrot_capture && notify-send "Screenshot saved in your Pictures folder", mode "default"
+        bindsym --release ctrl+s exec --no-startup-id $scrot_region && notify-send "Screenshot saved in your Pictures folder", mode "default"
+        bindsym --release s exec --no-startup-id $scrot_region_cb && notify-send "Screenshot saved to clipboard", mode "default"
+        bindsym --release ctrl+f exec --no-startup-id $scrot_focus && notify-send "Screenshot saved in your Pictures folder", mode "default"
+        bindsym --release f exec --no-startup-id $scrot_focus_cb && notify-send "Screenshot saved to clipboard", mode "default"
+        bindsym Escape      mode "default"
+}
+bindsym $mod+p mode "$mode_screenshot"
+
+# Shutdown menu
+set $mode_system (l)ock, (e)xit, switch_(u)ser, (s)uspend, (h)ibernate, (r)eboot, (Shift+s)hutdown
+mode "$mode_system" {
+    bindsym l exec --no-startup-id i3exit lock, mode "default"
+#    bindsym s exec --no-startup-id i3exit suspend, mode "default"
+    bindsym u exec --no-startup-id i3exit switch_user, mode "default"
+    bindsym e exec --no-startup-id i3exit logout, mode "default"
+    bindsym h exec --no-startup-id i3exit hibernate, mode "default"
+    bindsym r exec --no-startup-id i3exit reboot, mode "default"
+    bindsym Shift+s exec --no-startup-id i3exit shutdown, mode "default"
+
+    # exit system mode: "Enter" or "Escape"
+    bindsym Return mode "default"
+    bindsym Escape mode "default"
+}
+bindsym $mod+F12 mode "$mode_system"
+
+# resize window 
+mode "resize" {
+        bindsym j resize shrink width 5 px or 5 ppt
+        bindsym k resize grow height 5 px or 5 ppt
+        bindsym l resize shrink height 5 px or 5 ppt
+        bindsym semicolon resize grow width 5 px or 5 ppt
+
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+}
+bindsym $mod+c mode "resize"
+
+################################################################################
+##############################       BAR       #################################
+################################################################################ 
+
+bar {
+      	i3bar_command i3bar
+        status_command i3status
+        tray_output primary
+	      position bottom
+	      font xft:URWGothic-Book 11
+
+    colors {
+        background #222D31
+        statusline #F9FAF9
+	      separator  #ffff00
+
+        #                   border  backgr   text
+        focused_workspace  #F9FAF9 #16a085 #292F34
+        active_workspace   #595B5B #353836 #FDF6E3
+        inactive_workspace #595B5B #222D31 #EEE8D5
+        binding_mode       #16a085 #2C2C2C #F9FAF9
+        urgent_workspace   #16a085 #FDF6E3 #E5201D
+    }
+}
+
+################################################################################
+##############################       GAPS       ################################
+################################################################################ 
+
+title_align left
+hide_edge_borders smart
+default_border normal
+
+bindsym $mod+g border toggle
+
+# Set inner/outer gaps #
+gaps inner 10
+gaps outer 0
+
+smart_gaps on
+smart_borders no_gaps
+
+# Press $mod+Shift+g to enter the gap mode. 
+# Choose o or i for modifying outer/inner gaps. 
+# Press one of + / - (in-/decrement for current workspace) or 0 (remove gaps for current workspace).
+# If you also press Shift with these keys, the change will be global for all workspaces.
+
+set $mode_gaps Gaps: (o) outer, (i) inner
+set $mode_gaps_outer Outer Gaps: +|-|0 (local), Shift + +|-|0 (global)
+set $mode_gaps_inner Inner Gaps: +|-|0 (local), Shift + +|-|0 (global)
+bindsym $mod+Shift+g mode "$mode_gaps"
+
+mode "$mode_gaps" {
+        bindsym o      mode "$mode_gaps_outer"
+        bindsym i      mode "$mode_gaps_inner"
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+}
+mode "$mode_gaps_inner" {
+        bindsym plus  gaps inner current plus 5
+        bindsym minus gaps inner current minus 5
+        bindsym 0     gaps inner current set 0
+
+        bindsym Shift+plus  gaps inner all plus 5
+        bindsym Shift+minus gaps inner all minus 5
+        bindsym Shift+0     gaps inner all set 0
+
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+}
+mode "$mode_gaps_outer" {
+        bindsym plus  gaps outer current plus 5
+        bindsym minus gaps outer current minus 5
+        bindsym 0     gaps outer current set 0
+
+        bindsym Shift+plus  gaps outer all plus 5
+        bindsym Shift+minus gaps outer all minus 5
+        bindsym Shift+0     gaps outer all set 0
+
+        bindsym Return mode "default"
+        bindsym Escape mode "default"
+}
+for_window [class=".*"] border pixel 2
+
+################################################################################################
+## sound-section - DO NOT EDIT if you wish to automatically upgrade Alsa -> Pulseaudio later! ##
+################################################################################################
+
+#exec --no-startup-id volumeicon
+#bindsym $mod+Ctrl+m exec terminal -e 'alsamixer'
+#exec --no-startup-id pulseaudio

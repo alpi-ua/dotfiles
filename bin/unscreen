@@ -1,0 +1,3 @@
+#!/bin/bash
+second_display=DP1
+[[ $1 == '' ]] && ~/bin/screen off $second_display || screen off $1

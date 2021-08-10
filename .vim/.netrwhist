@@ -1,0 +1,5 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhistcnt =3
+let g:netrw_dirhist_3='/home/alpi/.config/i3'
+let g:netrw_dirhist_2='/home/alpi/.tmux'
+let g:netrw_dirhist_1='/home/oleksii/Documents/linux/.git/branches'
